@@ -3,70 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
-use App\Http\Requests\StorePegawaiRequest;
-use App\Http\Requests\UpdatePegawaiRequest;
+use Illuminate\Http\Request;
 
 class PegawaiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $datas = Pegawai::all();
-
-        return view('pegawai.index', compact('datas'), ['title' => 'pegawai Page']);
+        $pegawais = Pegawai::all();
+        return view('pegawai.index', compact('pegawais'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view ('pegawai.create',['title' => 'pegawai Create']);
+        return view('pegawai.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePegawaiRequest $request)
+    public function store(Request $request)
     {
-        Pegawai::create($request->validated());
-        return redirect()->route('pegawai.index');
+        $request->validate([
+            'nama_pegawai' => 'required|string|max:150',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'jabatan' => 'required|in:teknisi,admin,spv',
+            'status' => 'required|in:aktif,tidak_aktif',
+        ]);
+
+        Pegawai::create($request->all());
+
+        return redirect()->route('pegawai.index')
+            ->with('success', 'Pegawai baru berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Pegawai $pegawai)
     {
-        return view('pegawai.show', compact('pegawai'), ['title' => "pegawai Detail"]);
+        return view('pegawai.show', compact('pegawai'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Pegawai $pegawai)
     {
-        return view('pegawai.edit', compact('pegawai'), ['title' => "pegawai Edit"]);
+        return view('pegawai.edit', compact('pegawai'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePegawaiRequest $request, Pegawai $pegawai)
+    public function update(Request $request, Pegawai $pegawai)
     {
-        $pegawai->update($request->validated());
-        return redirect()->route('pegawai.index');
+        $request->validate([
+            'nama_pegawai' => 'required|string|max:150',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'jabatan' => 'required|in:teknisi,admin,spv',
+            'status' => 'required|in:aktif,tidak_aktif',
+        ]);
+
+        $pegawai->update($request->all());
+
+        return redirect()->route('pegawai.index')
+            ->with('success', 'Data pegawai berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Pegawai $pegawai)
     {
         $pegawai->delete();
-        return redirect()->route('pegawai.index');
-    }
 
+        return redirect()->route('pegawai.index')
+            ->with('success', 'Pegawai berhasil dihapus.');
+    }
 }

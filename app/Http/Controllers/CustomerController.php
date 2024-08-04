@@ -2,78 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use App\Models\Customers;
-use App\Http\Requests\StoreCustomersRequest;
-use App\Http\Requests\UpdateCustomersRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Customer;
+use Illuminate\Http\Request;
 
-class CustomersController extends Controller
+class CustomerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): view
+    public function index()
     {
-        $customers = Customers::all();
-        return view('customers.index', compact('customers'));
+        $customers = Customer::all();
+        return view('customer.index', compact('customers'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): view
+    public function create()
     {
-        return view('customers.create');
+        return view('customer.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreCustomersRequest $request)
+    public function store(Request $request)
     {
-        Customers::create($request->all());
+        $request->validate([
+            'nama_customer' => 'required|string|max:150',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+        ]);
 
-        return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
-    }
-    
+        Customer::create($request->all());
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): View
-    {
-        $customer = Customers::findOrFail($id);
-        return view('customers.show', compact('customer'));
-    }
-    /**
-     * Show the form for editing the specified resource.
-     */
-
-    public function edit(Customers $customer)
-    {
-        return view('customers.edit', compact('customer'));
+        return redirect()->route('customer.index')
+            ->with('success', 'Customer baru berhasil ditambahkan.');
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCustomersRequest $request, Customers $customer)
+    public function show(Customer $customer)
     {
-        $customer->update($request->validated());
-
-        return redirect()->route('customers.index')->with('success', 'Customer Berhasil Diupdate!.');
+        return view('customer.show', compact('customer'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id): RedirectResponse
+    public function edit(Customer $customer)
     {
-        $customers = Customers::findOrFail($id);
-        $customers->delete();
+        return view('customer.edit', compact('customer'));
+    }
 
-        return redirect()->route('customers.index')->with(['success' => 'Customer Berhasil Dihapus!']);
+    public function update(Request $request, Customer $customer)
+    {
+        $request->validate([
+            'nama_customer' => 'required|string|max:150',
+            'alamat' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+        ]);
+
+        $customer->update($request->all());
+
+        return redirect()->route('customer.index')
+            ->with('success', 'Data customer berhasil diperbarui.');
+    }
+
+    public function destroy(Customer $customer)
+    {
+        $customer->delete();
+
+        return redirect()->route('customer.index')
+            ->with('success', 'Customer berhasil dihapus.');
     }
 }
+
+
+

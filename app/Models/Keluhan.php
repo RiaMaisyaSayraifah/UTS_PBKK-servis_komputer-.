@@ -8,21 +8,29 @@ use Illuminate\Database\Eloquent\Model;
 class Keluhan extends Model
 {
     use HasFactory;
+
+    protected $table = 'keluhan';
+
     protected $fillable = [
         'nama_keluhan',
         'ongkos',
-        'komputer_id',
-        'customer_id',
-        'pegawai_id',
+        'id_komputer',
+        'id_customer',
+        'id_pegawai',
     ];
 
-    public function Kendaraan(){
-        return $this->belongsTo(Komputer::class,'no_pol');
+    public function komputer()
+    {
+        return $this->belongsTo(Komputer::class, 'id_komputer');
     }
-    public function Customer(){
-        return $this->belongsTo(Customers::class);
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'id_customer');
     }
-    public function Pegawai(){
-        return $this->belongsTo(Pegawai::class);
+
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class, 'id_pegawai');
     }
 }

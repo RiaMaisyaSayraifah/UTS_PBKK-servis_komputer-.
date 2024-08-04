@@ -9,6 +9,8 @@ class Pegawai extends Model
 {
     use HasFactory;
 
+    protected $table = 'pegawai';
+
     protected $fillable = [
         'nama_pegawai',
         'alamat',
@@ -16,7 +18,8 @@ class Pegawai extends Model
         'jabatan',
         'status',
     ];
-    public function Keluhan(){
-        return $this->hasMany(Keluhan::class);
+    public function keluhan()
+    {
+        return $this->hasMany(Keluhan::class, 'id_pegawai');
     }
 }

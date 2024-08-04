@@ -5,25 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Customers extends Model
+class Customer extends Model
 {
     use HasFactory;
 
+    // Define the table associated with the model
+    protected $table = 'customer';
 
-    protected $fillable =
-     [
+    // Define the fillable attributes
+    protected $fillable = [
         'nama_customer',
         'alamat',
         'jenis_kelamin',
     ];
-
-    public function getGenderCodeAttribute()
+    public function keluhan()
     {
-        return $this->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan';
+        return $this->hasMany(Keluhan::class, 'id_customer');
     }
-
-    public function Keluhan(){
-        return $this->hasMany(Keluhan::class);
-    }
-
 }

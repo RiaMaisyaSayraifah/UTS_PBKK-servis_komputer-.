@@ -2,77 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
 use App\Models\Komputer;
-use App\Http\Requests\StoreKomputerRequest;
-use App\Http\Requests\UpdateKomputerRequest;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class KomputerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): view
+    public function index()
     {
-        $komputer = Komputer::all();
-        return view('komputer.index', compact('komputer'));
+        $komputers = Komputer::all();
+        return view('komputer.index', compact('komputers'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): view
+    public function create()
     {
         return view('komputer.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreKomputerRequest $request)
+    public function store(Request $request)
     {
-        Komputer::create($request->validated());
+        $request->validate([
+            'merk' => 'required|in:asus,acer,dell,lenovo',
+            'kelengkapan' => 'required|string',
+        ]);
 
-        return redirect()->route('komputer.index')->with('success', 'Komputer created successfully.');
+        Komputer::create($request->all());
+
+        return redirect()->route('komputer.index')
+            ->with('success', 'Komputer baru berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): View
+    public function show(Komputer $komputer)
     {
-        $komputer = Komputer::findOrFail($id);
         return view('komputer.show', compact('komputer'));
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
 
     public function edit(Komputer $komputer)
     {
         return view('komputer.edit', compact('komputer'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateKomputerRequest $request, Komputer $komputer)
+    public function update(Request $request, Komputer $komputer)
     {
-        $komputer->update($request->validated());
+        $request->validate([
+            'merk' => 'required|in:asus,acer,dell,lenovo',
+            'kelengkapan' => 'required|string',
+        ]);
 
-        return redirect()->route('komputer.index')->with('success', 'Komputer Berhasil Diupdate!.');
+        $komputer->update($request->all());
+
+        return redirect()->route('komputer.index')
+            ->with('success', 'Data komputer berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id): RedirectResponse
+    public function destroy(Komputer $komputer)
     {
-        $komputer = Komputer::findOrFail($id);
         $komputer->delete();
 
-        return redirect()->route('komputer.index')->with(['success' => 'Komputer Berhasil Dihapus!']);
+        return redirect()->route('komputer.index')
+            ->with('success', 'Komputer berhasil dihapus.');
     }
 }

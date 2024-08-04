@@ -3,77 +3,78 @@
 namespace App\Http\Controllers;
 
 use App\Models\Keluhan;
-use App\Http\Requests\StoreKeluhanRequest;
-use App\Http\Requests\UpdateKeluhanRequest;
-use App\Models\Customers;
 use App\Models\Komputer;
+use App\Models\Customer;
 use App\Models\Pegawai;
+use Illuminate\Http\Request;
 
 class KeluhanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $datas = Keluhan::with(['Kendaraan', 'Customer', 'Pegawai'])->orderBy('created_at', 'desc')->get();
-
-        return view('keluhan.index', compact('datas'), ['title' => 'Keluhan Page']);
+        $keluhans = Keluhan::with(['komputer', 'customer', 'pegawai'])->get();
+        return view('keluhan.index', compact('keluhans'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $komputer = Komputer::all();
-        $customer = Customers::all();
-        $pegawai = Pegawai::where('status', 'aktif')->get();
-        return view('keluhan.create', ['title' => 'Keluhan Create', 'kendaraan' => $komputer, 'customer' => $customer, 'pegawai' => $pegawai]);
+        $komputers = Komputer::all();
+        $customers = Customer::all();
+        $pegawais = Pegawai::all();
+        return view('keluhan.create', compact('komputers', 'customers', 'pegawais'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_keluhan' => 'required|string',
+            'ongkos' => 'required|integer',
+            'id_komputer' => 'nullable|exists:komputer,id',
+            'id_customer' => 'nullable|exists:customer,id',
+            'id_pegawai' => 'nullable|exists:pegawai,id',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
+        Keluhan::create($request->all());
+
+        return redirect()->route('keluhan.index')
+            ->with('success', 'Keluhan baru berhasil ditambahkan.');
+    }
+
     public function show(Keluhan $keluhan)
     {
-        $komputer = $keluhan->Kendaraan;
-        $customer = $keluhan->Customer;
-        $pegawai = $keluhan->Pegawai;
-        return view('keluhan.show', compact('keluhan', 'komputer', 'customer', 'pegawai'), ['title' => 'Keluhan Detail']);
+        $keluhan->load(['komputer', 'customer', 'pegawai']);
+        return view('keluhan.show', compact('keluhan'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Keluhan $keluhan)
     {
-        $komputer = $keluhan->Kendaraan;
-        $customer = $keluhan->Customer;
-        $pegawai = $keluhan->Pegawai;
-        return view('keluhan.edit', compact('keluhan', 'komputer', 'customer', 'pegawai'), ['title' => "Keluhan Edit"]);
+        $komputers = Komputer::all();
+        $customers = Customer::all();
+        $pegawais = Pegawai::all();
+        return view('keluhan.edit', compact('keluhan', 'komputers', 'customers', 'pegawais'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateKeluhanRequest $request, Keluhan $keluhan)
+    public function update(Request $request, Keluhan $keluhan)
     {
-        $keluhan->update($request->validated());
-        return redirect()->route('keluhan.index');
+        $request->validate([
+            'nama_keluhan' => 'required|string',
+            'ongkos' => 'required|integer',
+            'id_komputer' => 'nullable|exists:komputer,id',
+            'id_customer' => 'nullable|exists:customer,id',
+            'id_pegawai' => 'nullable|exists:pegawai,id',
+        ]);
+
+        $keluhan->update($request->all());
+
+        return redirect()->route('keluhan.index')
+            ->with('success', 'Data keluhan berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Keluhan $keluhan)
     {
         $keluhan->delete();
-        return redirect()->route('keluhan.index');
+
+        return redirect()->route('keluhan.index')
+            ->with('success', 'Keluhan berhasil dihapus.');
     }
 }
